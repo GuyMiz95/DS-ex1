@@ -41,8 +41,23 @@ def get_fruit_page(fruit):
     return page
 
 
-def textsum(tfidf_table, data):
-    return
+def textsum(fruits):
+    top_sentences = []
+    for fruit in fruits:
+        with open(fruit + '.json', 'r') as f:
+            cur_fruit_json = json.load(f)
+        top_5_sentences = []
+        fruit_sentences = sent_tokenize(cur_fruit_json)
+        sentence_indices = ["idx" + str(i) for i in range(len(fruit_sentences))]
+        words_in_fruit_page = get_bag_of_words(cur_fruit_json)
+        fruit_tfidf_score_table = tfidf(fruit_sentences, words_in_fruit_page, sentence_indices)
+        tf_idf_vectors = create_vectors(fruit_tfidf_score_table)
+        similarity_table = create_similarity_matrix(tf_idf_vectors)
+        best_vectors_indices = find_top_k_similar_vectors(similarity_table)
+        for index in best_vectors_indices:
+            top_5_sentences.append(fruit_sentences[index])
+        top_sentences.append(top_5_sentences)
+    return top_sentences
 
 
 def create_vectors(tfidf_table):
@@ -123,21 +138,8 @@ if __name__ == '__main__':
 
     # align fruits #
     # fruits = [line[0] for line in _data[1:]]
-
-    # todo: 1) decide if opening json is outside or inside of textsum()
-    # todo: 2) import code into textsum() (i think it should be operated per fruit and return a list of the 5 sentences)
-    # todo: 3) eventually run on all fruits instead of just Banana and we're done with (b)
     fruits = ["Banana"]
-    for fruit in fruits:
-        with open(fruit + '.json', 'r') as f:
-            cur_data = json.load(f)
-
-        listed_data = sent_tokenize(cur_data)
-        sent_index = ["idx" + str(i) for i in range(len(listed_data))]
-        words_in_fruit = get_bag_of_words(cur_data)
-        fruit_tfidf_score = tfidf(listed_data, words_in_fruit, sent_index)
-        vectors = create_vectors(fruit_tfidf_score)
-        similarity_matrix = create_similarity_matrix(vectors)
-        best_vectors_indexes = find_top_k_similar_vectors(similarity_matrix)
-        for index in best_vectors_indexes:
-            print(listed_data[index])
+    text_sums = textsum(fruits)
+    for fruit_sentences in text_sums:
+        for sentence in fruit_sentences:
+            print(sentence)

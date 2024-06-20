@@ -45,4 +45,6 @@ if __name__ == '__main__':
         _data = [row for row in _reader]
     _data = _data[1:]
     festival_descriptions = [line[-1] for line in _data]
-    tfidf(festival_descriptions, festival_terms, [line[0] for line in _data])
+    data_frame = tfidf(festival_descriptions, festival_terms, [line[0] for line in _data])
+    for term in data_frame:
+        print("\"" + term + "\"" + " :", data_frame[term])
